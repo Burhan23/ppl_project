@@ -1,0 +1,91 @@
+<?php 
+include 'db_conn.php';
+include 'function.php';
+$db = new database();
+$register = new Register();
+$upgrade = new Upgrade();
+
+$select = new Select();
+
+if(!empty($_SESSION["id"])){
+  $user = $select->selectUserById($_SESSION["id"]);
+  $_POST['username'] = $user['username'];
+}
+else{
+  header("Location: login.php");
+}
+
+
+
+ 
+$aksi = $_GET['aksi'];
+if($aksi == "tambah"){
+	if (($_FILES['gambar']['name']!="")){
+	// Where the file is going to be stored
+		$target_dir = "uploads/";
+		$file = $_FILES['gambar']['name'];
+		$path = pathinfo($file);
+		$filename = $path['filename'];
+		$ext = $path['extension'];
+		$temp_name = $_FILES['gambar']['tmp_name'];
+		$path_filename_ext = $target_dir.$filename.".".$ext;
+	
+	// Check if file already exists
+		if (file_exists($path_filename_ext)) {
+			echo "Sorry, file already exists.";
+		}else{
+			move_uploaded_file($temp_name,$path_filename_ext);
+			echo "Congratulations! File Uploaded Successfully.";
+		}
+	}
+ 	$db->input($_POST['nama_product'],$_POST['gambar'],$_POST['deskripsi'],$_POST['dana'],$_POST['nama_pengrajin'],$_POST['nama_usaha'],$_POST['username']);
+ 	header("location:index_pengrajin.php");
+} elseif($aksi == "update"){
+ 	$db->update($_REQUEST['id'],$_POST['nama_product'],$_POST['deskripsi'],$_POST['dana']);
+ 	header("location:index_pengrajin.php");
+} elseif($aksi == "hapus"){
+	$db->hapus($_GET['id']);
+	header("location:index_pengrajin.php");
+} elseif($aksi == "regist"){
+	if (($_FILES['pp']['name']!="")){
+		$img_name = $_FILES['pp']['name'];
+         $tmp_name = $_FILES['pp']['tmp_name'];
+         $error = $_FILES['pp']['error'];
+         
+         if($error === 0){
+            $img_ex = pathinfo($img_name, PATHINFO_EXTENSION);
+            $img_ex_to_lc = strtolower($img_ex);
+
+            $allowed_exs = array('jpg', 'jpeg', 'png');
+            if(in_array($img_ex_to_lc, $allowed_exs)){
+               $new_img_name = uniqid($uname, true).'.'.$img_ex_to_lc;
+               $img_upload_path = '../uploads/'.$new_img_name;
+               move_uploaded_file($tmp_name, $img_upload_path);
+
+			   $result = $register->registration($_POST["fname"], $_POST["username"], $_POST["email"], $_POST["password"], $_POST["confirmpassword"], $_POST["pp"], $_POST["role"] );
+			   header("location:login.php");
+			   
+			}else {
+				$em = "You can't upload files of this type";
+				header("Location: ../index.php?error=$em");
+				exit;
+			 }
+		  }else {
+			 $em = "unknown error occurred!";
+			 header("Location: ../index.php?error=$em");
+			 exit;
+		  }
+	}
+	else{
+		$em = "unknown error occurred!";
+		header("Location: ../login.php?error=$em");
+		exit;
+	}
+	
+	
+} elseif($aksi == "upgrade"){
+	$upgrade->upgradeUserById($_REQUEST['id'],$_POST['npwp'],$_POST['nik'],$_POST['no_rekening'],$_POST['deskripsi']);
+ 	header("location:index_pengrajin.php");
+}
+
+?>

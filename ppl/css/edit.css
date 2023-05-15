@@ -1,0 +1,11 @@
+h2{
+    font-size: 40px;
+    margin-top: 30px;
+    text-align: center;
+    color: rgb(137, 64, 0);
+    font-weight: bold;
+}
+label{
+    font-weight: bold;
+    color: rgb(118, 86, 0);
+}

@@ -1,0 +1,6 @@
+class Upgrade extends Connection{
+  public function upgradeUserById($id, $npwp, $nik, $no_rekening,$deskripsi)
+	{
+		mysqli_query($this->conn, "update users set npwp='$npwp', nik='$nik', no_rekening='$no_rekening', deskripsi='$deskripsi' where id='$id'");
+	}
+}
